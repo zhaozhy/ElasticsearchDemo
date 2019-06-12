@@ -62,7 +62,7 @@ public class DemoApplicationTests {
         int totalPages=result.getTotalPages();
         List<Goods> items=result.getContent();
         Aggregations aggregations=result.getAggregations();
-
+        System.out.println(items);
     }
 
 }

@@ -20,6 +20,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class BaseSearchServiceImpl<T> implements BaseSearchService<T> {
     private Logger  log= LoggerFactory.getLogger(getClass());
 
@@ -101,11 +103,24 @@ public class BaseSearchServiceImpl<T> implements BaseSearchService<T> {
 
     @Override
     public Page<Map<String, Object>> queryHitByPage(int pageNo, int pageSize, String keyword, String indexName, String... fieldNames) {
-        return null;
+        QueryBuilder matchQuery=createQueryBuilder(keyword,fieldNames);
+        HighlightBuilder  highlightBuilder=createHighlightBuilder(fieldNames);
+
+        SearchResponse response=elasticsearchTemplate.getClient().prepareSearch(indexName)
+                .setQuery(matchQuery)
+                .highlighter(highlightBuilder)
+                .setFrom((pageNo-1)*pageSize)
+                .setSize(pageNo*pageSize)
+                .get();
+        SearchHits hits=response.getHits();
+        Long totalCount=hits.getTotalHits();
+        Page<Map<String ,Object>> page=new Page<>(pageNo,pageSize,totalCount.intValue());
+        page.setList(getHitList(hits));
+        return page;
     }
 
     @Override
     public void deleteIndex(String indexName) {
-
+        elasticsearchTemplate.deleteIndex(indexName);
     }
 }

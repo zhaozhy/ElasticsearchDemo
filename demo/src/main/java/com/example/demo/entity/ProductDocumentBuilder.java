@@ -1,8 +1,11 @@
 package com.example.demo.entity;
 
+import org.springframework.stereotype.Component;
+
 import javax.xml.crypto.Data;
 import java.util.Date;
 
+@Component
 public class ProductDocumentBuilder {
 
     private  static  ProductDocument productDocument;
@@ -12,7 +15,7 @@ public class ProductDocumentBuilder {
         return  new ProductDocumentBuilder();
     }
     public  ProductDocumentBuilder addId(String id){
-        productDocument.setId(id);
+       productDocument.setId(id);
         return  this ;
     }
 
